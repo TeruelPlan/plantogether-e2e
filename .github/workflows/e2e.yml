@@ -1,0 +1,64 @@
+name: E2E Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Image tag to test'
+        required: false
+        default: 'latest'
+  repository_dispatch:
+    types: [run-e2e]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Resolve image tag
+        id: tag
+        run: |
+          TAG="${{ github.event.inputs.image_tag || github.event.client_payload.image_tag || 'latest' }}"
+          echo "value=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Start stack
+        run: IMAGE_TAG=${{ steps.tag.outputs.value }} docker compose up -d --wait
+        timeout-minutes: 5
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+          cache: maven
+
+      - name: Run E2E tests
+        run: mvn --batch-mode verify
+        env:
+          E2E_BASE_URL: http://localhost
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-reports
+          path: target/failsafe-reports/
+          retention-days: 14
+
+      - name: Dump service logs on failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Tear down
+        if: always()
+        run: docker compose down -v
