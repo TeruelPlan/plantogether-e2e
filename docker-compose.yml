@@ -2,6 +2,10 @@ name: plantogether-e2e
 
 # IMAGE_TAG is passed as an environment variable (default: latest).
 # Usage: IMAGE_TAG=1.2.3 docker compose up -d
+#
+# NOTE: All credentials below are intentional CI/E2E throwaway values.
+# They are used exclusively in isolated test containers and are never
+# connected to any production or internet-facing infrastructure.
 
 services:
 
@@ -13,7 +17,7 @@ services:
     image: postgres:16-alpine
     environment:
       POSTGRES_USER: plantogether
-      POSTGRES_PASSWORD: plantogether
+      POSTGRES_PASSWORD: plantogether   # CI-only throwaway credential
       POSTGRES_DB: plantogether_trip
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -29,7 +33,7 @@ services:
     image: rabbitmq:3.13-management-alpine
     environment:
       RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_PASS: guest      # CI-only throwaway credential
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "ping"]
       interval: 10s
@@ -62,11 +66,11 @@ services:
       DB_PORT: 5432
       DB_NAME: plantogether_trip
       DB_USER: plantogether
-      DB_PASSWORD: plantogether
+      DB_PASSWORD: plantogether         # CI-only throwaway credential
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: guest
-      RABBITMQ_PASSWORD: guest
+      RABBITMQ_PASSWORD: guest          # CI-only throwaway credential
       REDIS_HOST: redis
       REDIS_PORT: 6379
     depends_on:
@@ -89,11 +93,11 @@ services:
       DB_PORT: 5432
       DB_NAME: plantogether_poll
       DB_USER: plantogether
-      DB_PASSWORD: plantogether
+      DB_PASSWORD: plantogether         # CI-only throwaway credential
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: guest
-      RABBITMQ_PASSWORD: guest
+      RABBITMQ_PASSWORD: guest          # CI-only throwaway credential
       REDIS_HOST: redis
       REDIS_PORT: 6379
       TRIP_SERVICE_GRPC_HOST: trip-service
@@ -118,11 +122,11 @@ services:
       DB_PORT: 5432
       DB_NAME: plantogether_destination
       DB_USER: plantogether
-      DB_PASSWORD: plantogether
+      DB_PASSWORD: plantogether         # CI-only throwaway credential
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: guest
-      RABBITMQ_PASSWORD: guest
+      RABBITMQ_PASSWORD: guest          # CI-only throwaway credential
       REDIS_HOST: redis
       REDIS_PORT: 6379
       TRIP_SERVICE_GRPC_HOST: trip-service
@@ -147,11 +151,11 @@ services:
       DB_PORT: 5432
       DB_NAME: plantogether_expense
       DB_USER: plantogether
-      DB_PASSWORD: plantogether
+      DB_PASSWORD: plantogether         # CI-only throwaway credential
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: guest
-      RABBITMQ_PASSWORD: guest
+      RABBITMQ_PASSWORD: guest          # CI-only throwaway credential
       REDIS_HOST: redis
       REDIS_PORT: 6379
       TRIP_SERVICE_GRPC_HOST: trip-service
@@ -176,11 +180,11 @@ services:
       DB_PORT: 5432
       DB_NAME: plantogether_task
       DB_USER: plantogether
-      DB_PASSWORD: plantogether
+      DB_PASSWORD: plantogether         # CI-only throwaway credential
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: guest
-      RABBITMQ_PASSWORD: guest
+      RABBITMQ_PASSWORD: guest          # CI-only throwaway credential
       REDIS_HOST: redis
       REDIS_PORT: 6379
       TRIP_SERVICE_GRPC_HOST: trip-service
@@ -205,11 +209,11 @@ services:
       DB_PORT: 5432
       DB_NAME: plantogether_chat
       DB_USER: plantogether
-      DB_PASSWORD: plantogether
+      DB_PASSWORD: plantogether         # CI-only throwaway credential
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: guest
-      RABBITMQ_PASSWORD: guest
+      RABBITMQ_PASSWORD: guest          # CI-only throwaway credential
       REDIS_HOST: redis
       REDIS_PORT: 6379
       TRIP_SERVICE_GRPC_HOST: trip-service
@@ -234,18 +238,18 @@ services:
       DB_PORT: 5432
       DB_NAME: plantogether_file
       DB_USER: plantogether
-      DB_PASSWORD: plantogether
+      DB_PASSWORD: plantogether         # CI-only throwaway credential
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: guest
-      RABBITMQ_PASSWORD: guest
+      RABBITMQ_PASSWORD: guest          # CI-only throwaway credential
       REDIS_HOST: redis
       REDIS_PORT: 6379
       TRIP_SERVICE_GRPC_HOST: trip-service
       TRIP_SERVICE_GRPC_PORT: 9081
       MINIO_ENDPOINT: http://minio:9000
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
+      MINIO_ACCESS_KEY: minioadmin      # CI-only throwaway credential
+      MINIO_SECRET_KEY: minioadmin      # CI-only throwaway credential
     depends_on:
       postgres:
         condition: service_healthy
