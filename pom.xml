@@ -4,7 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.plantogether</groupId>
+    <parent>
+        <groupId>com.plantogether</groupId>
+        <artifactId>plantogether-parent</artifactId>
+        <version>1.1.0</version>
+    </parent>
+
     <artifactId>plantogether-e2e</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -12,75 +17,67 @@
     <name>plantogether-e2e</name>
     <description>End-to-end tests for the PlanTogether platform</description>
 
-    <properties>
-        <java.version>21</java.version>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <rest-assured.version>5.4.0</rest-assured.version>
-        <junit-jupiter.version>5.10.2</junit-jupiter.version>
-        <jackson.version>2.17.0</jackson.version>
-        <assertj.version>3.25.3</assertj.version>
-    </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.plantogether</groupId>
+                <artifactId>plantogether-bom</artifactId>
+                <version>1.0.1</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
-        <!-- REST Assured -->
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>${rest-assured.version}</version>
             <scope>test</scope>
         </dependency>
-
-        <!-- JUnit 5 -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>${junit-jupiter.version}</version>
             <scope>test</scope>
         </dependency>
-
-        <!-- Jackson -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>${jackson.version}</version>
             <scope>test</scope>
         </dependency>
-
-        <!-- AssertJ -->
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <!-- Skip default unit test phase — all tests are E2E -->
+            <!-- spring-boot repackage does not apply here (no main class) -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <!-- Skip unit tests — all tests in this module are E2E -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.5</version>
                 <configuration>
                     <skipTests>true</skipTests>
                 </configuration>
             </plugin>
-
-            <!-- Run E2E tests on verify phase -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.2.5</version>
                 <configuration>
                     <includes>
                         <include>**/*E2ETest.java</include>
@@ -97,4 +94,23 @@
             </plugin>
         </plugins>
     </build>
+
+    <repositories>
+        <repository>
+            <id>github-parent</id>
+            <url>https://maven.pkg.github.com/TeruelPlan/plantogether-parent</url>
+        </repository>
+        <repository>
+            <id>github-bom</id>
+            <url>https://maven.pkg.github.com/TeruelPlan/plantogether-bom</url>
+        </repository>
+        <repository>
+            <id>github-common</id>
+            <url>https://maven.pkg.github.com/TeruelPlan/plantogether-common</url>
+        </repository>
+        <repository>
+            <id>github-proto</id>
+            <url>https://maven.pkg.github.com/TeruelPlan/plantogether-proto</url>
+        </repository>
+    </repositories>
 </project>

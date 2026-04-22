@@ -43,9 +43,11 @@ jobs:
           cache: maven
 
       - name: Run E2E tests
-        run: mvn --batch-mode verify
+        run: mvn -s .settings.xml --batch-mode verify
         env:
           E2E_BASE_URL: http://localhost
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload test reports
         if: always()
