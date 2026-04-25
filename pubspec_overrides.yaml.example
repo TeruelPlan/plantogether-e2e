@@ -1,0 +1,6 @@
+# Copy this file to pubspec_overrides.yaml for local development.
+# It overrides the git dependency with a local path.
+# pubspec_overrides.yaml is gitignored.
+dependency_overrides:
+  plantogether_app:
+    path: ../plantogether-app

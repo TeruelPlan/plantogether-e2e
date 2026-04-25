@@ -1,19 +1,19 @@
-name: E2E Tests
+name: E2E Tests (Patrol)
 
 on:
   workflow_dispatch:
     inputs:
       image_tag:
-        description: 'Image tag to test'
+        description: 'Backend image tag to test'
         required: false
         default: 'latest'
   repository_dispatch:
     types: [run-e2e]
 
 jobs:
-  e2e:
+  e2e-android:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 60
 
     steps:
       - uses: actions/checkout@v4
@@ -31,48 +31,55 @@ jobs:
           TAG="${{ github.event.inputs.image_tag || github.event.client_payload.image_tag || 'latest' }}"
           echo "value=$TAG" >> "$GITHUB_OUTPUT"
 
-      - name: Start stack
+      - name: Start backend stack
         run: IMAGE_TAG=${{ steps.tag.outputs.value }} docker compose up -d --wait
         timeout-minutes: 5
 
-      - name: Set up Java
+      - name: Set up Java (Android build tools)
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          java-version: '17'
           distribution: temurin
-          server-id: github-packages
-          server-username: GITHUB_ACTOR
-          server-password: PACKAGES_TOKEN
 
-      - name: Cache Maven dependencies
-        uses: actions/cache@v4
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
-          path: |
-            ~/.m2/repository
-            !~/.m2/repository/com/plantogether
-          key: m2-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            m2-${{ runner.os }}-
+          flutter-version: '3.32.x'
+          channel: stable
+          cache: true
 
-      - name: Run E2E tests
-        run: mvn -s .settings.xml --batch-mode verify
-        env:
-          E2E_BASE_URL: http://localhost
-          GITHUB_ACTOR: ${{ github.actor }}
-          PACKAGES_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
+      - name: Install patrol_cli
+        run: dart pub global activate patrol_cli
 
-      - name: Upload test reports
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Run Patrol E2E tests on Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          arch: x86_64
+          profile: Nexus 6
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          disable-animations: true
+          script: |
+            patrol test \
+              --dart-define=API_BASE_URL=http://10.0.2.2 \
+              --dart-define=WS_URL=http://10.0.2.2 \
+              --verbose
+
+      - name: Upload Patrol report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: e2e-reports
-          path: target/failsafe-reports/
+          name: patrol-report
+          path: build/app/outputs/patrol/
           retention-days: 14
 
       - name: Dump service logs on failure
         if: failure()
         run: docker compose logs
 
-      - name: Tear down
+      - name: Tear down backend
         if: always()
         run: docker compose down -v

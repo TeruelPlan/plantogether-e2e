@@ -1,0 +1,31 @@
+name: plantogether_e2e
+description: Flutter E2E tests for PlanTogether using Patrol
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.8.0 <4.0.0"
+  flutter: ">=3.19.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  plantogether_app:
+    git:
+      url: https://github.com/TeruelPlan/plantogether-app
+      ref: main
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  patrol: ^3.15.1
+  http: ^1.2.0
+  flutter_secure_storage: ^10.0.0
+
+patrol:
+  app_name: PlanTogether
+  android:
+    package_name: com.example.plantogether_app
+  ios:
+    bundle_id: com.example.plantogetherApp
